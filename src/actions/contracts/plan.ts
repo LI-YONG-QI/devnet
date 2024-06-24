@@ -18,11 +18,7 @@ export const activePlan = async (hash: Hex, userId: string, planId: string) => {
   return receipt;
 };
 
-export const mintPlanNFT = async (
-  hash: Hex,
-  userId: string,
-  planId: string
-) => {
+export const mintPlanNFT = async (hash: Hex) => {
   console.log("Waiting Tx... ");
 
   const receipt = await waitForTransactionReceipt(config, {
@@ -31,6 +27,7 @@ export const mintPlanNFT = async (
     hash,
   });
 
+  console.log(receipt);
   if (!receipt.to) throw new Error("No contract address found");
 };
 

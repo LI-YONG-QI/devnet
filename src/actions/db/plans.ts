@@ -14,6 +14,10 @@ export async function createPlan(input: Prisma.PlanCreateInput) {
   return plan;
 }
 
+export async function getAllPlans() {
+  return await prisma.plan.findMany();
+}
+
 // Read a plan by its ID
 export async function getPlanById(planId: string) {
   const plan = await prisma.plan.findUnique({

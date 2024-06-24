@@ -60,3 +60,24 @@ export const routerCreatePlan = async (
 
   await createPlan({ ...input, contract: createdPlan });
 };
+
+export const getAllUserPlanStatus = async (user: Address) => {
+  const plans = await getUsePlans(user);
+
+  const result: { plan: Address; status: boolean }[] = [];
+
+  await Promise.all(
+    plans.map(async (plan) => {
+      const status = await readContract(config, {
+        chainId: sepolia.id,
+        address: ROUTER_ADDR,
+        abi: ROUTER_ABI,
+        functionName: "getUserPlanStatus",
+        args: [user, plan],
+      });
+      result.push({ plan, status });
+    })
+  );
+
+  return result;
+};

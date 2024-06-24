@@ -2661,9 +2661,11 @@ function prettyPrint(args) {
   const maxLength = entries.reduce((acc, [key]) => Math.max(acc, key.length), 0);
   return entries.map(([key, value]) => `  ${`${key}:`.padEnd(maxLength + 1)}  ${value}`).join("\n");
 }
-var FeeConflictError, InvalidSerializableTransactionError, TransactionNotFoundError, TransactionReceiptNotFoundError, WaitForTransactionReceiptTimeoutError;
+var FeeConflictError, InvalidSerializableTransactionError, TransactionExecutionError, TransactionNotFoundError, TransactionReceiptNotFoundError, WaitForTransactionReceiptTimeoutError;
 var init_transaction = __esm({
   "node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/errors/transaction.js"() {
+    init_formatEther();
+    init_formatGwei();
     init_base();
     FeeConflictError = class extends BaseError {
       constructor() {
@@ -2702,6 +2704,44 @@ var init_transaction = __esm({
           writable: true,
           value: "InvalidSerializableTransactionError"
         });
+      }
+    };
+    TransactionExecutionError = class extends BaseError {
+      constructor(cause, { account, docsPath: docsPath6, chain, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value }) {
+        const prettyArgs = prettyPrint({
+          chain: chain && `${chain?.name} (id: ${chain?.id})`,
+          from: account?.address,
+          to,
+          value: typeof value !== "undefined" && `${formatEther(value)} ${chain?.nativeCurrency?.symbol || "ETH"}`,
+          data,
+          gas,
+          gasPrice: typeof gasPrice !== "undefined" && `${formatGwei(gasPrice)} gwei`,
+          maxFeePerGas: typeof maxFeePerGas !== "undefined" && `${formatGwei(maxFeePerGas)} gwei`,
+          maxPriorityFeePerGas: typeof maxPriorityFeePerGas !== "undefined" && `${formatGwei(maxPriorityFeePerGas)} gwei`,
+          nonce
+        });
+        super(cause.shortMessage, {
+          cause,
+          docsPath: docsPath6,
+          metaMessages: [
+            ...cause.metaMessages ? [...cause.metaMessages, " "] : [],
+            "Request Arguments:",
+            prettyArgs
+          ].filter(Boolean)
+        });
+        Object.defineProperty(this, "cause", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "name", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: "TransactionExecutionError"
+        });
+        this.cause = cause;
       }
     };
     TransactionNotFoundError = class extends BaseError {
@@ -4516,7 +4556,7 @@ var init_contract2 = __esm({
 });
 
 // node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/errors/chain.js
-var ChainDoesNotSupportContract, ClientChainNotConfiguredError;
+var ChainDoesNotSupportContract, ChainMismatchError, ChainNotFoundError, ClientChainNotConfiguredError;
 var init_chain = __esm({
   "node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/errors/chain.js"() {
     init_base();
@@ -4537,6 +4577,36 @@ var init_chain = __esm({
           configurable: true,
           writable: true,
           value: "ChainDoesNotSupportContract"
+        });
+      }
+    };
+    ChainMismatchError = class extends BaseError {
+      constructor({ chain, currentChainId }) {
+        super(`The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${chain.id} \u2013 ${chain.name}).`, {
+          metaMessages: [
+            `Current Chain ID:  ${currentChainId}`,
+            `Expected Chain ID: ${chain.id} \u2013 ${chain.name}`
+          ]
+        });
+        Object.defineProperty(this, "name", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: "ChainMismatchError"
+        });
+      }
+    };
+    ChainNotFoundError = class extends BaseError {
+      constructor() {
+        super([
+          "No chain was provided to the request.",
+          "Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient."
+        ].join("\n"));
+        Object.defineProperty(this, "name", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: "ChainNotFoundError"
         });
       }
     };
@@ -8078,12 +8148,330 @@ function watchContractEvent(client2, parameters) {
   return enablePolling ? pollContractEvent() : subscribeContractEvent();
 }
 
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/writeContract.js
+init_encodeFunctionData();
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/sendTransaction.js
+init_parseAccount();
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/errors/account.js
+init_base();
+var AccountNotFoundError = class extends BaseError {
+  constructor({ docsPath: docsPath6 } = {}) {
+    super([
+      "Could not find an Account to execute with this Action.",
+      "Please provide an Account with the `account` argument on the Action, or by supplying an `account` to the WalletClient."
+    ].join("\n"), {
+      docsPath: docsPath6,
+      docsSlug: "account"
+    });
+    Object.defineProperty(this, "name", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "AccountNotFoundError"
+    });
+  }
+};
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/utils/chain/assertCurrentChain.js
+init_chain();
+function assertCurrentChain({ chain, currentChainId }) {
+  if (!chain)
+    throw new ChainNotFoundError();
+  if (currentChainId !== chain.id)
+    throw new ChainMismatchError({ chain, currentChainId });
+}
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/utils/errors/getTransactionError.js
+init_node();
+init_transaction();
+init_getNodeError();
+function getTransactionError(err, { docsPath: docsPath6, ...args }) {
+  const cause = (() => {
+    const cause2 = getNodeError(err, args);
+    if (cause2 instanceof UnknownNodeError)
+      return err;
+    return cause2;
+  })();
+  return new TransactionExecutionError(cause, {
+    docsPath: docsPath6,
+    ...args
+  });
+}
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/sendTransaction.js
+init_extract();
+init_transactionRequest();
+init_assertRequest();
+
 // node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/sendRawTransaction.js
 async function sendRawTransaction(client2, { serializedTransaction }) {
   return client2.request({
     method: "eth_sendRawTransaction",
     params: [serializedTransaction]
   }, { retryCount: 0 });
+}
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/sendTransaction.js
+async function sendTransaction(client2, parameters) {
+  const { account: account_ = client2.account, chain = client2.chain, accessList, blobs, data, gas, gasPrice, maxFeePerBlobGas, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value, ...rest } = parameters;
+  if (!account_)
+    throw new AccountNotFoundError({
+      docsPath: "/docs/actions/wallet/sendTransaction"
+    });
+  const account = parseAccount(account_);
+  try {
+    assertRequest(parameters);
+    let chainId;
+    if (chain !== null) {
+      chainId = await getAction(client2, getChainId, "getChainId")({});
+      assertCurrentChain({
+        currentChainId: chainId,
+        chain
+      });
+    }
+    if (account.type === "local") {
+      const request2 = await getAction(client2, prepareTransactionRequest, "prepareTransactionRequest")({
+        account,
+        accessList,
+        blobs,
+        chain,
+        chainId,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        parameters: [...defaultParameters, "sidecars"],
+        to,
+        value,
+        ...rest
+      });
+      const serializer = chain?.serializers?.transaction;
+      const serializedTransaction = await account.signTransaction(request2, {
+        serializer
+      });
+      return await getAction(client2, sendRawTransaction, "sendRawTransaction")({
+        serializedTransaction
+      });
+    }
+    const chainFormat = client2.chain?.formatters?.transactionRequest?.format;
+    const format = chainFormat || formatTransactionRequest;
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { format: chainFormat }),
+      accessList,
+      blobs,
+      data,
+      from: account.address,
+      gas,
+      gasPrice,
+      maxFeePerBlobGas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value
+    });
+    return await client2.request({
+      method: "eth_sendTransaction",
+      params: [request]
+    }, { retryCount: 0 });
+  } catch (err) {
+    throw getTransactionError(err, {
+      ...parameters,
+      account,
+      chain: parameters.chain || void 0
+    });
+  }
+}
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/wallet/writeContract.js
+async function writeContract(client2, parameters) {
+  const { abi: abi2, address, args, dataSuffix, functionName, ...request } = parameters;
+  const data = encodeFunctionData({
+    abi: abi2,
+    args,
+    functionName
+  });
+  return getAction(client2, sendTransaction, "sendTransaction")({
+    data: `${data}${dataSuffix ? dataSuffix.replace("0x", "") : ""}`,
+    to: address,
+    ...request
+  });
+}
+
+// node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/actions/getContract.js
+function getContract({ abi: abi2, address, client: client_ }) {
+  const client2 = client_;
+  const [publicClient, walletClient] = (() => {
+    if (!client2)
+      return [void 0, void 0];
+    if ("public" in client2 && "wallet" in client2)
+      return [client2.public, client2.wallet];
+    if ("public" in client2)
+      return [client2.public, void 0];
+    if ("wallet" in client2)
+      return [void 0, client2.wallet];
+    return [client2, client2];
+  })();
+  const hasPublicClient = publicClient !== void 0 && publicClient !== null;
+  const hasWalletClient = walletClient !== void 0 && walletClient !== null;
+  const contract = {};
+  let hasReadFunction = false;
+  let hasWriteFunction = false;
+  let hasEvent = false;
+  for (const item of abi2) {
+    if (item.type === "function")
+      if (item.stateMutability === "view" || item.stateMutability === "pure")
+        hasReadFunction = true;
+      else
+        hasWriteFunction = true;
+    else if (item.type === "event")
+      hasEvent = true;
+    if (hasReadFunction && hasWriteFunction && hasEvent)
+      break;
+  }
+  if (hasPublicClient) {
+    if (hasReadFunction)
+      contract.read = new Proxy({}, {
+        get(_, functionName) {
+          return (...parameters) => {
+            const { args, options } = getFunctionParameters(parameters);
+            return getAction(publicClient, readContract, "readContract")({
+              abi: abi2,
+              address,
+              functionName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+    if (hasWriteFunction)
+      contract.simulate = new Proxy({}, {
+        get(_, functionName) {
+          return (...parameters) => {
+            const { args, options } = getFunctionParameters(parameters);
+            return getAction(publicClient, simulateContract, "simulateContract")({
+              abi: abi2,
+              address,
+              functionName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+    if (hasEvent) {
+      contract.createEventFilter = new Proxy({}, {
+        get(_, eventName) {
+          return (...parameters) => {
+            const abiEvent = abi2.find((x) => x.type === "event" && x.name === eventName);
+            const { args, options } = getEventParameters(parameters, abiEvent);
+            return getAction(publicClient, createContractEventFilter, "createContractEventFilter")({
+              abi: abi2,
+              address,
+              eventName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+      contract.getEvents = new Proxy({}, {
+        get(_, eventName) {
+          return (...parameters) => {
+            const abiEvent = abi2.find((x) => x.type === "event" && x.name === eventName);
+            const { args, options } = getEventParameters(parameters, abiEvent);
+            return getAction(publicClient, getContractEvents, "getContractEvents")({
+              abi: abi2,
+              address,
+              eventName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+      contract.watchEvent = new Proxy({}, {
+        get(_, eventName) {
+          return (...parameters) => {
+            const abiEvent = abi2.find((x) => x.type === "event" && x.name === eventName);
+            const { args, options } = getEventParameters(parameters, abiEvent);
+            return getAction(publicClient, watchContractEvent, "watchContractEvent")({
+              abi: abi2,
+              address,
+              eventName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+    }
+  }
+  if (hasWalletClient) {
+    if (hasWriteFunction)
+      contract.write = new Proxy({}, {
+        get(_, functionName) {
+          return (...parameters) => {
+            const { args, options } = getFunctionParameters(parameters);
+            return getAction(walletClient, writeContract, "writeContract")({
+              abi: abi2,
+              address,
+              functionName,
+              args,
+              ...options
+            });
+          };
+        }
+      });
+  }
+  if (hasPublicClient || hasWalletClient) {
+    if (hasWriteFunction)
+      contract.estimateGas = new Proxy({}, {
+        get(_, functionName) {
+          return (...parameters) => {
+            const { args, options } = getFunctionParameters(parameters);
+            const client3 = publicClient ?? walletClient;
+            return getAction(client3, estimateContractGas, "estimateContractGas")({
+              abi: abi2,
+              address,
+              functionName,
+              args,
+              ...options,
+              account: options.account ?? walletClient.account
+            });
+          };
+        }
+      });
+  }
+  contract.address = address;
+  contract.abi = abi2;
+  return contract;
+}
+function getFunctionParameters(values) {
+  const hasArgs = values.length && Array.isArray(values[0]);
+  const args = hasArgs ? values[0] : [];
+  const options = (hasArgs ? values[1] : values[0]) ?? {};
+  return { args, options };
+}
+function getEventParameters(values, abiEvent) {
+  let hasArgs = false;
+  if (Array.isArray(values[0]))
+    hasArgs = true;
+  else if (values.length === 1) {
+    hasArgs = abiEvent.inputs.some((x) => x.indexed);
+  } else if (values.length === 2) {
+    hasArgs = true;
+  }
+  const args = hasArgs ? values[0] : void 0;
+  const options = (hasArgs ? values[1] : values[0]) ?? {};
+  return { args, options };
 }
 
 // node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/errors/eip712.js
@@ -10549,6 +10937,188 @@ function createPublicClient(parameters) {
   return client2.extend(publicActions);
 }
 
+// src/abis/router.ts
+var ROUTER_ABI = [
+  { inputs: [], name: "Create2EmptyBytecode", type: "error" },
+  { inputs: [], name: "Create2FailedDeployment", type: "error" },
+  {
+    inputs: [
+      { internalType: "uint256", name: "balance", type: "uint256" },
+      { internalType: "uint256", name: "needed", type: "uint256" }
+    ],
+    name: "Create2InsufficientBalance",
+    type: "error"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
+      { indexed: true, internalType: "address", name: "plan", type: "address" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "time",
+        type: "uint256"
+      }
+    ],
+    name: "Active",
+    type: "event"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "creator",
+        type: "address"
+      },
+      { indexed: true, internalType: "string", name: "name", type: "string" },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "plan",
+        type: "address"
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "createAt",
+        type: "uint256"
+      }
+    ],
+    name: "Created",
+    type: "event"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
+      { indexed: true, internalType: "address", name: "plan", type: "address" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "time",
+        type: "uint256"
+      }
+    ],
+    name: "Mint",
+    type: "event"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "owner", type: "address" },
+      { internalType: "string", name: "name", type: "string" },
+      { internalType: "string", name: "symbol", type: "string" },
+      { internalType: "uint256", name: "totalSupply", type: "uint256" },
+      { internalType: "uint256", name: "mintPrice_", type: "uint256" },
+      { internalType: "uint256", name: "period_", type: "uint256" }
+    ],
+    name: "_getBytecode",
+    outputs: [{ internalType: "bytes", name: "", type: "bytes" }],
+    stateMutability: "pure",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "starter", type: "address" },
+      { internalType: "address", name: "plan", type: "address" }
+    ],
+    name: "active",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "creator", type: "address" },
+      { internalType: "string", name: "name", type: "string" },
+      { internalType: "string", name: "symbol", type: "string" },
+      { internalType: "uint256", name: "totalSupply", type: "uint256" },
+      { internalType: "uint256", name: "mintPrice_", type: "uint256" },
+      { internalType: "uint256", name: "period_", type: "uint256" }
+    ],
+    name: "createPlan",
+    outputs: [{ internalType: "address", name: "plan", type: "address" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "uint256", name: "", type: "uint256" }
+    ],
+    name: "creatorPlans",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [{ internalType: "address", name: "creator", type: "address" }],
+    name: "getCreatorPlans",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "user", type: "address" },
+      { internalType: "address", name: "plan", type: "address" }
+    ],
+    name: "getUserPlanStatus",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [{ internalType: "address", name: "user", type: "address" }],
+    name: "getUserPlans",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "user", type: "address" },
+      { internalType: "address", name: "plan", type: "address" }
+    ],
+    name: "mint",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "planIdCounter",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "", type: "address" }
+    ],
+    name: "userPlanStatus",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "uint256", name: "", type: "uint256" }
+    ],
+    name: "userPlans",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function"
+  }
+];
+
+// src/utils/constants.ts
+var ROUTER_ADDR = "0x48Fc2a20A7350f4cCC66DD2cE35b89bb7b1825EB";
+
 // node_modules/.pnpm/viem@2.13.10_bufferutil@4.0.8_typescript@5.4.5_utf-8-validate@5.0.10_zod@3.23.8/node_modules/viem/_esm/chains/definitions/sepolia.js
 var sepolia = /* @__PURE__ */ defineChain({
   id: 11155111,
@@ -10580,16 +11150,58 @@ var sepolia = /* @__PURE__ */ defineChain({
   testnet: true
 });
 
-// fleek-fn/getBlockNumber.ts
+// fleek-fn/getEvents.ts
 var client = createPublicClient({
   chain: sepolia,
   transport: http()
 });
+var router = getContract({
+  address: ROUTER_ADDR,
+  abi: ROUTER_ABI,
+  client
+});
 var main = async (params) => {
-  const { method, path } = params;
-  const block = await client.getBlock();
-  return `Block Number ${block.number}`;
+  const deployContractBlock = BigInt(6155307);
+  const createLogs = await router.getEvents.Created(
+    {},
+    { fromBlock: deployContractBlock, toBlock: "latest" }
+  );
+  const mintLogs = await router.getEvents.Mint(
+    {},
+    { fromBlock: deployContractBlock, toBlock: "latest" }
+  );
+  const createEvents = createLogs.map((log) => {
+    const event = decodeEventLog({
+      abi: ROUTER_ABI,
+      ...log
+    });
+    return {
+      ...event,
+      args: { ...event.args, createAt: event.args.createAt.toString() }
+    };
+  });
+  const mintEvents = mintLogs.map((log) => {
+    let event = decodeEventLog({
+      abi: ROUTER_ABI,
+      ...log
+    });
+    return {
+      ...event,
+      args: { ...event.args, time: event.args.time.toString() }
+    };
+  });
+  const events = [...createEvents, ...mintEvents];
+  return {
+    code: 200,
+    body: events,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  };
 };
+main({}).then((res) => {
+  console.dir(res.body);
+});
 export {
   main
 };

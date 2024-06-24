@@ -2,12 +2,13 @@
   "name": "devnet",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "bundle": "./node_modules/.bin/esbuild ./fleek-fn/getBlockNumber.ts --bundle --format=esm --outfile=./fleek-fn/out/out.js"
+    "bundle": "./node_modules/.bin/esbuild ./fleek-fn/getEvents.ts --bundle --format=esm --outfile=./fleek-fn/out/out.js"
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^2.1.1",

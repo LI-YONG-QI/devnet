@@ -1,6 +1,10 @@
 import React from "react";
+import Image from "next/image";
+import useNFTs from "@/hooks/contracts/useNFTs";
 
 const Nfts = () => {
+  const { nfts } = useNFTs();
+
   return (
     <section>
       <div className="px-4 pt-5 pb-3 flex flex-col gap-0 items-start self-stretch relative w-full bg-transparent">
@@ -10,14 +14,17 @@ const Nfts = () => {
       </div>
       <div className="p-4 flex flex-col gap-3 items-start self-stretch relative w-full h-[200px] bg-transparent">
         <div className="flex gap-3 items-start flex-1 self-stretch relative w-full h-full bg-transparent">
-          <div className="flex flex-col gap-3 items-start self-stretch relative w-[284px] h-full bg-transparent">
-            <div className="overflow-hidden rounded-xl relative w-full h-full bg-[url('https://picsum.photos/id/53/128/128')] bg-cover bg-center"></div>
-          </div>
-          <div className="flex flex-col gap-3 items-start self-stretch relative w-[284px] h-full bg-transparent">
-            <div className="overflow-hidden rounded-xl relative w-full h-full bg-[url('https://picsum.photos/id/12/128/128')] bg-cover bg-center"></div>
-          </div>
-          <div className="flex flex-col gap-3 items-start self-stretch relative w-[284px] h-full bg-transparent">
-            <div className="overflow-hidden rounded-xl relative w-full h-full bg-[url('https://picsum.photos/id/11/128/128')] bg-cover bg-center"></div>
+          <div>
+            {nfts &&
+              nfts.map((nft, index) => (
+                <Image
+                  key={index}
+                  src="/solidity_logo.svg"
+                  width={100}
+                  height={100}
+                  alt="Picture of the author"
+                />
+              ))}
           </div>
         </div>
       </div>

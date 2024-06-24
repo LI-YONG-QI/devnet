@@ -51,6 +51,14 @@ const Navbar = () => {
               </p>
             </Link>
             <Link
+              href={"/explore"}
+              className="flex flex-col gap-0 items-start relative bg-transparent"
+            >
+              <p className="font-medium leading-[21px] text-sm text-[#121417]">
+                Explore
+              </p>
+            </Link>
+            <Link
               href={"/profile"}
               className="flex flex-col gap-0 items-start relative bg-transparent"
             >
