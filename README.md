@@ -79,3 +79,24 @@ Use Fleek Functions to read event(minted / created) from on-chain contracts.
 ```bash
 pnpm bundle
 ```
+
+2. create function
+
+```bash
+fleek functions create --name <YOUR_FUNCTION_NAME>
+```
+
+3. deploy function (--path must be out.js file path)
+
+```bash
+fleek functions deploy \
+  --name <YOUR_FUNCTION_NAME> \
+  --path <out.js file path>
+```
+
+4. check function deployment
+
+```bash
+fleek function deployments --name <YOUR_FUNCTION_NAME>
+```
+
