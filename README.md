@@ -12,24 +12,29 @@ Creators can also use these features to build their own business models. For exa
 
 # Features
 
-## Social Login
+## Social Login (Homepage & Profile)
 
 User can login with their social account, like Github, Google, Twitter, etc.
 
-[[Image]]
+<img width="1509" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/f9c09079-7e96-4f69-bead-93eb48f4dd08">
+
+<img width="1510" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/c816af3a-f40f-4a1f-a233-089d5041d5b6">
+
+<img width="1510" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/58dbb1aa-5a4b-4aa8-8f4a-a16170015963">
+
+
 
 ## Create plan
 
 User can create learning plan, and set the price of SBT, and the number of SBT.
 
-[[image]]
-[[image]]
+<img width="1512" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/e1a37a27-3e34-4237-a0bd-c93a0050cdde">
 
 ## Start Plan
 
 User can start the plan, and the plan will be shown in the user's profile.
 
-[[image]]
+<img width="1502" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/3b003a1b-4c8a-45a2-b1e7-e133b838db6d">
 
 User can mint NFT when finishing the plan, the price of NFT is set by plan creator. And the NFT will shown in the user's profile.
 
@@ -37,7 +42,10 @@ User can mint NFT when finishing the plan, the price of NFT is set by plan creat
 
 User can explore recently created / minted / completed plans.
 
-[[image]]
+Note: not finished yet, only display plan contract address by fetched event log
+
+<img width="1512" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/c8bc8853-c58a-44e1-8498-9ea82c69db51">
+
 
 # Tech
 
