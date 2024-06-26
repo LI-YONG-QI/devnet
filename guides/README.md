@@ -43,8 +43,11 @@ export const main = async (
 ): Promise<Fleek.HttpResponse> => {
   const block = await client.getBlockNumber();
   return {
-    statusCode: 200,
+    code: 200,
     body: block,
+    headers: {
+      "Content-Type": "application/json",
+    },
   };
 };
 ```
