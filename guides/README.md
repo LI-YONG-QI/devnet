@@ -1,4 +1,4 @@
-How to deploy Fleek Function with package and typescript ?
+# How to deploy Fleek Function with package and typescript ?
 
 Official guide: https://fleek.xyz/docs/cli/functions/
 
@@ -11,11 +11,12 @@ So, if you want to deploy Typescript function and use third-party packages, you 
 
 # Type of function parameter
 
-ＩＭＡＧＥ
+![image](https://github.com/LI-YONG-QI/devnet/assets/76777953/8759ac50-2f12-4cc3-b085-98b2b39596f7)
 
-Need download `index.d.ts` file
 
-And use Fleek namespace to declare type
+Need download `index.d.ts` file (red circle), and put it in your code folder
+
+And use `Fleek` namespace to declare type
 
 Example:
 
@@ -49,7 +50,7 @@ export const main = async (
 };
 ```
 
-In execute this function by `ts-node`, it's work. But when you deploy to Fleek and call deployed API url, you will get error, because Fleek doesn't know what is `viem` package.
+When executing this function with `ts-node`, it works. However, when you deploy to Fleek and call deployed API URL, you will get error because Fleek doesn't recognize what is `viem` package.
 
 The uploaded files only include the file containing the main function, without the source code of viem.
 
