@@ -82,6 +82,8 @@ Use Fleek Functions to read event(minted / created) from on-chain contracts.
 
 # How to deploy Fleek Functions ?
 
+If you want to know more details on deploy Fleek Function, please check this [guide](https://github.com/LI-YONG-QI/devnet/tree/main/guides)
+
 1. esbuild bundle `getEvents.ts` with package to `out/out.js`
 
 ```bash
