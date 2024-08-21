@@ -1,6 +1,6 @@
 # DevNet
 
-Base Onchain Summer project. (on Discovery track)
+Base Onchain Summer project. (Discovery track)
 
 # Overview
 
@@ -21,8 +21,6 @@ User can login with their social account, like Github, Google, Twitter, etc.
 <img width="1510" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/c816af3a-f40f-4a1f-a233-089d5041d5b6">
 
 <img width="1510" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/58dbb1aa-5a4b-4aa8-8f4a-a16170015963">
-
-
 
 ## Create plan
 
@@ -45,7 +43,6 @@ User can explore recently created / minted / completed plans.
 Note: not finished yet, only display plan contract address by fetched event log
 
 <img width="1512" alt="image" src="https://github.com/LI-YONG-QI/devnet/assets/76777953/c8bc8853-c58a-44e1-8498-9ea82c69db51">
-
 
 # Tech
 
@@ -109,4 +106,3 @@ fleek functions deploy \
 ```bash
 fleek function deployments --name <YOUR_FUNCTION_NAME>
 ```
-
